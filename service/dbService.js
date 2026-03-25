@@ -31,5 +31,24 @@ export async function delete_medium_users(id) {
 //--------------------------------------------------------------------------
 
 export async function fetch_one_medium_user(id) {
-  return await medium_users.findByPk(parseInt(id));
+  console.log("dbService - fetch_one_medium_user", id, typeof id);
+  return await medium_users.findByPk(id);
+}
+
+// ----------------------------------------------------------------
+export async function update_medium_user(payload) {
+  const { firstName, lastName, status, id } = payload;
+  const user = await medium_users.update(
+    {
+      firstName: firstName,
+      lastName: lastName,
+      status: status,
+    },
+    {
+      where: {
+        id: id,
+      },
+    },
+  );
+  return user.dataValues;
 }

@@ -9,15 +9,6 @@ export const postApiOne = async (payload: Record<string, any>) => {
   return data;
 };
 
-export const fetchByIdApiOne = async (id: string) => {
-  const res = await fetch("/api/api_one", {
-    body: id,
-    method: "POST",
-  });
-  const data = await res.json();
-  return data;
-};
-
 export const fetchAllApiOne = async () => {
   const res = await fetch("/api/api_one", {
     method: "GET",
@@ -26,24 +17,19 @@ export const fetchAllApiOne = async () => {
   return data;
 };
 
-export const deleteApiOne = async (payload: string) => {
-  const res = await fetch("/api/api_one", {
-    method: "DELETE",
-    body: payload,
-  });
-  const data = await res.json();
-  return data;
-};
+export const ApiOneHandler = async (
+  method: ApiMethods,
+  payload: Record<string, any>,
+) => {
+  let req: Record<string, any> = { method };
 
-export const ApiOneHandler = async (payload: string, method: ApiMethods) => {
-  const newPayload = {
-    body: payload,
-    method: method,
-  };
+  if (payload) {
+    req.body = JSON.stringify(payload);
+  }
 
-  console.log("newPayload", newPayload);
+  console.log("req", req);
 
-  const res = await fetch("/api/api_one", newPayload);
+  const res = await fetch("/api/api_one", req);
   const data = await res.json();
   return data;
 };
