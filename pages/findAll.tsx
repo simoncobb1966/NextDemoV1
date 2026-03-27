@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "~/components/Navbar/Navbar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAllApiOne, ApiOneHandler } from "../routes";
+import { fetchAllApiOne, ApiOneHandler } from "../routes/medium_users";
 import Button from "@mui/material/Button";
 import Notify from "~/components/Notify";
 import Box from "@mui/material/Box";
@@ -19,23 +19,28 @@ const padding = { padding: 8 };
 const FindAll: React.FunctionComponent = () => {
   const queryClient = useQueryClient();
 
-  const [snackbarText, setSnackbarText] = useState<null | string>(null);
+  const [snackbarText, setSnackbarText] = useState("");
   const [selectedUser, setSelectedUser] = useState<Record<string, any> | null>(
     null,
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users"],
     queryFn: fetchAllApiOne,
   });
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsNotifyOpen(!!snackbarText);
+  }, [snackbarText]);
+
   const searchMutation = useMutation({
     mutationFn: (payload: Record<"search", string>) =>
       ApiOneHandler("POST", { ...payload }),
     onError: (error) => {
-      console.log("Search error", error);
       setSnackbarText(`Search Error ${error}`);
       return [];
     },
@@ -53,16 +58,17 @@ const FindAll: React.FunctionComponent = () => {
     searchMutation.mutate(payload);
   };
 
-  const patchMutation = useMutation({
+  const updateMutation = useMutation({
     mutationFn: (payload: User) => ApiOneHandler("PATCH", { ...payload }),
     onError: (error) => {
-      console.log("Patch error");
       setSnackbarText(`Patch Error ${error}`);
     },
     onSuccess: async () => {
-      console.log("successfully patched");
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setSnackbarText("Patched");
+      if (searchTerm) {
+        searchHandler();
+      }
     },
   });
 
@@ -73,15 +79,13 @@ const FindAll: React.FunctionComponent = () => {
       lastName: selectedUser?.lastName,
       status: selectedUser?.status,
     };
-    console.log("payload", payload);
-    patchMutation.mutate(payload);
+    updateMutation.mutate(payload);
   };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => ApiOneHandler("DELETE", { id }),
-    onError: (error, variables, context) => {
-      console.log(`mutation error ${error}, ${variables}, ${context}`);
-      setSnackbarText("Delete Error");
+    onError: (error) => {
+      setSnackbarText(`Delete Error ${error}`);
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -97,9 +101,8 @@ const FindAll: React.FunctionComponent = () => {
     mutationFn: (id: string) => {
       return ApiOneHandler("POST", { id });
     },
-    onError: (error, variables, context) => {
-      console.log(`mutation error ${error}, ${variables}, ${context}`);
-      setSnackbarText("Fetch by ID Error");
+    onError: (error) => {
+      setSnackbarText(`Fetch by ID Error ${error}`);
       setSelectedUser(null);
     },
     onSuccess: async (user: User) => {
@@ -113,26 +116,23 @@ const FindAll: React.FunctionComponent = () => {
   };
 
   const changeHandler = (value: string, field: string) => {
-    console.log("ChangeHandler", value, field);
     setSelectedUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  //   useEffect(() => {
-  //   if (data || users !== data) {
-  //     setUsers(data);
-  //   }
-  // }, [data]);
-
   if (isLoading) return <div>Loading...</div>;
   if (isError && error?.message) return <div>Error: {error.message}</div>;
-
-  console.log("Data", data);
 
   const dataToRender = isEmpty(users) ? data : users;
 
   return (
     <Box sx={{ width: "100%" }}>
-      {snackbarText && <Notify text={snackbarText} />}
+      <Notify
+        text={snackbarText}
+        open={isNotifyOpen}
+        onClose={() => {
+          setSnackbarText("");
+        }}
+      />
       <Navbar />
       <Box sx={{ display: "flex" }}>
         <Box sx={{ border: "2px solid red", padding: 1, width: "50%" }}>
@@ -221,7 +221,6 @@ const FindAll: React.FunctionComponent = () => {
                 style={{ display: "initial" }}
                 value={selectedUser.status}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  console.log(event.target.value);
                   changeHandler(event.target.value, "status");
                 }}
               >

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Paper, Typography, TextField, Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {
@@ -9,7 +9,7 @@ import {
   FormLabel,
   Checkbox,
 } from "@mui/material";
-import { ApiOneHandler } from "../routes";
+import { ApiOneHandler } from "../routes/medium_users";
 import { User } from "~/types/User";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Notify from "~/components/Notify";
@@ -18,8 +18,15 @@ const Form: React.FunctionComponent = () => {
   const paperStyle = { padding: "25px 10px", width: 350, margin: "250px auto" };
   const headerStyle = { margin: 0 };
   const FormControlStyle = { marginTop: 5 };
-  const [snackbarText, setSnackbarText] = useState<null | string>(null);
+  const [snackbarText, setSnackbarText] = useState("");
   const queryClient = useQueryClient();
+
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsNotifyOpen(!!snackbarText);
+  }, [snackbarText]);
 
   const submitMutation = useMutation({
     mutationFn: (payload: User) => ApiOneHandler("POST", { ...payload }),
@@ -55,14 +62,19 @@ const Form: React.FunctionComponent = () => {
   return (
     <Grid>
       <Paper elevation={20} style={paperStyle}>
-        {snackbarText && <Notify text={snackbarText} />}
+        <Notify
+          text={snackbarText}
+          open={isNotifyOpen}
+          onClose={() => {
+            setSnackbarText("");
+          }}
+        />
         <Grid>
           <h2 style={headerStyle}>MUI TUTORIAL v1</h2>
           <Typography variant="caption">
             Demo project for developers to learn quickly.
           </Typography>
         </Grid>
-        {/* <form onSubmit={formHandel}> */}
         <TextField
           id="fn"
           fullWidth
@@ -101,7 +113,6 @@ const Form: React.FunctionComponent = () => {
         <Button onClick={onSubmit} variant="contained" color="primary">
           Submit
         </Button>
-        {/* </form> */}
       </Paper>
     </Grid>
   );

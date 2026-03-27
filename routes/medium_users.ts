@@ -1,7 +1,9 @@
 import { ApiMethods } from "~/types/ApiMethods";
 
+const route = "/api/medium_users/api_one";
+
 export const fetchAllApiOne = async () => {
-  const res = await fetch("/api/api_one", {
+  const res = await fetch(route, {
     method: "GET",
   });
   const data = await res.json();
@@ -20,7 +22,7 @@ export const ApiOneHandler = async (
 
   console.log("req", req);
 
-  const res = await fetch("/api/api_one", req);
+  const res = await fetch(route, req);
   const data = await res.json();
   return data;
 };

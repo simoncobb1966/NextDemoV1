@@ -1,23 +1,22 @@
-import * as React from "react";
 import Snackbar from "@mui/material/Snackbar";
+import Box from "@mui/material/Box";
 
 type NotifyPropsTypes = {
   text: string;
+  open: boolean;
+  onClose: () => void;
 };
 
-export default function Notify(props: NotifyPropsTypes) {
-  const { text } = props;
-  const [open, setOpen] = React.useState(true);
+const Notify = ({ onClose, open, text }: NotifyPropsTypes) => (
+  <Box>
+    <Snackbar
+      anchorOrigin={{ horizontal: "right", vertical: "top" }}
+      open={open}
+      autoHideDuration={6000}
+      onClose={onClose}
+      message={text}
+    />
+  </Box>
+);
 
-  return (
-    <div>
-      <Snackbar
-        anchorOrigin={{ horizontal: "right", vertical: "top" }}
-        open={open}
-        autoHideDuration={6000}
-        onClose={() => setOpen(false)}
-        message={text}
-      />
-    </div>
-  );
-}
+export default Notify;
