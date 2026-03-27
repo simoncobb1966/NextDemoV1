@@ -1,4 +1,5 @@
 import { medium_users } from "../database/models";
+const { Op } = require("sequelize");
 // ----------------------------------------------------------------
 export async function create_medium_user(body) {
   const { firstName, lastName, status } = JSON.parse(body);
@@ -37,6 +38,7 @@ export async function fetch_one_medium_user(id) {
 
 // ----------------------------------------------------------------
 export async function update_medium_user(payload) {
+  console.log("###--- payload", payload);
   const { firstName, lastName, status, id } = payload;
   const user = await medium_users.update(
     {
@@ -50,5 +52,19 @@ export async function update_medium_user(payload) {
       },
     },
   );
-  return user.dataValues;
+
+  return user;
+}
+//--------------------------------------------------------------------------
+
+export async function findAll_medium_user(searchTerm) {
+  console.log("dbService - findAll_medium_user", searchTerm);
+  return await medium_users.findAll({
+    where: {
+      [Op.or]: [
+        { firstName: { [Op.like]: `%${searchTerm}%` } },
+        { lastName: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+  });
 }

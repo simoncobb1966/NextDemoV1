@@ -6,6 +6,7 @@ import {
   delete_medium_users,
   fetch_one_medium_user,
   update_medium_user,
+  findAll_medium_user,
 } from "../../service/dbService";
 // import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -16,13 +17,19 @@ const handler = async (req, res) => {
   try {
     const { body, method } = req;
 
+    console.log("---=== body", body);
+    console.log("---=== method", method);
+
     if (body) {
       payload = JSON.parse(body);
       id = payload?.id;
     }
 
+    console.log("---=== payload", payload);
+
     switch (method) {
       case "GET": {
+        console.log("---=== get");
         const all_users = await fetch_all_medium_users();
         res.status(200).json(all_users);
         break;
@@ -35,6 +42,11 @@ const handler = async (req, res) => {
         break;
       }
       case "POST": {
+        if (payload?.search) {
+          const found_Users = await findAll_medium_user(payload.search);
+          res.status(200).json(found_Users);
+          break;
+        }
         if (id && Object.keys(payload).length === 1) {
           // fetch item by id
           console.log("---===fetch by id", id);
@@ -53,16 +65,9 @@ const handler = async (req, res) => {
         }
         break;
       }
-      case "PUT": {
-        //Do some thing
-        res.status(200).send("We Secured the PUT API End Point");
-        break;
-      }
       case "PATCH": {
-        //Do some thing
-        console.log("---=== Patching", body);
-        const updated_user = await update_medium_user(payload);
-        res.status(200).json(updated_user);
+        const updated_users = await update_medium_user(payload);
+        res.status(200).json(updated_users);
         break;
       }
       default:

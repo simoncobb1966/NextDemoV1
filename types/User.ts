@@ -1,6 +1,6 @@
 export type User = {
-  id: string;
+  id?: string;
   firstName: string;
   lastName: string;
-  status: "yes" | "no";
+  status: boolean;
 };
