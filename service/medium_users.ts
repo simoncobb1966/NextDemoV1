@@ -2,14 +2,14 @@ import { medium_users } from "../database/models";
 import { Op } from "sequelize";
 import { User } from "../types/User";
 // ----------------------------------------------------------------
-export async function create_medium_user(payload: User) {
-  const { firstName, lastName, status } = payload;
+export async function create_medium_user(user: User) {
+  const { firstName, lastName, status } = user;
   const users = await medium_users.create({
     firstName: firstName,
     lastName: lastName,
     status: status,
   });
-  return users.dataValues;
+  return users;
 }
 
 //--------------------------------------------------------------------------
@@ -58,7 +58,7 @@ export async function update_medium_user(payload: User) {
 }
 //--------------------------------------------------------------------------
 
-export async function findAll_medium_user(searchTerm: String) {
+export async function find_medium_user(searchTerm: String) {
   console.log("dbService - findAll_medium_user", searchTerm);
   return await medium_users.findAll({
     where: {

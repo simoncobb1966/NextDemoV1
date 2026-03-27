@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "~/components/Navbar/Navbar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAllApiOne, ApiOneHandler } from "../routes/medium_users";
 import Button from "@mui/material/Button";
 import Notify from "~/components/Notify";
 import Box from "@mui/material/Box";
@@ -13,10 +12,18 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import isEmpty from "lodash/isEmpty";
+import { apiRoutes } from "~/constants/apiRoutes";
+import {
+  deleteOne,
+  fetchAll,
+  fetchById,
+  find,
+  update,
+} from "../components/AxiosFunctions";
 
 const padding = { padding: 8 };
 
-const FindAll: React.FunctionComponent = () => {
+const Edit: React.FunctionComponent = () => {
   const queryClient = useQueryClient();
 
   const [snackbarText, setSnackbarText] = useState("");
@@ -29,7 +36,7 @@ const FindAll: React.FunctionComponent = () => {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users"],
-    queryFn: fetchAllApiOne,
+    queryFn: () => fetchAll(apiRoutes.medium_users),
   });
 
   useEffect(() => {
@@ -38,8 +45,8 @@ const FindAll: React.FunctionComponent = () => {
   }, [snackbarText]);
 
   const searchMutation = useMutation({
-    mutationFn: (payload: Record<"search", string>) =>
-      ApiOneHandler("POST", { ...payload }),
+    mutationFn: (searchTerm: string) =>
+      find(apiRoutes.medium_users, searchTerm),
     onError: (error) => {
       setSnackbarText(`Search Error ${error}`);
       return [];
@@ -51,15 +58,14 @@ const FindAll: React.FunctionComponent = () => {
     },
   });
 
-  const searchHandler = () => {
-    const payload = {
-      search: searchTerm,
-    };
-    searchMutation.mutate(payload);
-  };
-
   const updateMutation = useMutation({
-    mutationFn: (payload: User) => ApiOneHandler("PATCH", { ...payload }),
+    mutationFn: () =>
+      update(apiRoutes.medium_usersWithId, {
+        id: selectedUser?.id,
+        firstName: selectedUser?.firstName,
+        lastName: selectedUser?.lastName,
+        status: selectedUser?.status,
+      }),
     onError: (error) => {
       setSnackbarText(`Patch Error ${error}`);
     },
@@ -67,23 +73,13 @@ const FindAll: React.FunctionComponent = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setSnackbarText("Patched");
       if (searchTerm) {
-        searchHandler();
+        searchMutation.mutate(searchTerm);
       }
     },
   });
 
-  const onSubmit = () => {
-    const payload = {
-      id: selectedUser?.id,
-      firstName: selectedUser?.firstName,
-      lastName: selectedUser?.lastName,
-      status: selectedUser?.status,
-    };
-    updateMutation.mutate(payload);
-  };
-
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => ApiOneHandler("DELETE", { id }),
+    mutationFn: (id: string) => deleteOne(apiRoutes.medium_usersWithId, id),
     onError: (error) => {
       setSnackbarText(`Delete Error ${error}`);
     },
@@ -93,13 +89,9 @@ const FindAll: React.FunctionComponent = () => {
     },
   });
 
-  const deleteHandler = (id: string) => {
-    deleteMutation.mutate(id);
-  };
-
   const fetchByIdMutation = useMutation({
     mutationFn: (id: string) => {
-      return ApiOneHandler("POST", { id });
+      return fetchById(apiRoutes.medium_usersWithId, id);
     },
     onError: (error) => {
       setSnackbarText(`Fetch by ID Error ${error}`);
@@ -135,7 +127,7 @@ const FindAll: React.FunctionComponent = () => {
       />
       <Navbar />
       <Box sx={{ display: "flex" }}>
-        <Box sx={{ border: "2px solid red", padding: 1, width: "50%" }}>
+        <Box sx={{ padding: 1, width: "50%" }}>
           <h1>Users</h1>
           <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
@@ -152,7 +144,9 @@ const FindAll: React.FunctionComponent = () => {
             <Button
               variant="contained"
               size="small"
-              onClick={searchHandler}
+              onClick={() => {
+                searchMutation.mutate(searchTerm);
+              }}
               sx={{ height: 48, marginTop: 2 }}
             >
               submit
@@ -176,14 +170,14 @@ const FindAll: React.FunctionComponent = () => {
                   Select
                 </Button>
                 {`${user.id} ${user.firstName} ${user.lastName} ${user.status ? "Yes" : "No"}`}
-                <Button onClick={() => deleteHandler(user.id || "")}>
+                <Button onClick={() => deleteMutation.mutate(user.id || "")}>
                   Delete
                 </Button>
               </li>
             ))}
           </ul>
         </Box>
-        <Box sx={{ border: "2px solid blue", width: "50%" }}>
+        <Box sx={{ borderLeft: "2px solid black", width: "50%" }}>
           {selectedUser && (
             <Box style={padding}>
               <h1>Selected User</h1>
@@ -236,7 +230,11 @@ const FindAll: React.FunctionComponent = () => {
                 />
               </RadioGroup>
 
-              <Button variant="contained" color="primary" onClick={onSubmit}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => updateMutation.mutate()}
+              >
                 Update User
               </Button>
             </Box>
@@ -247,4 +245,4 @@ const FindAll: React.FunctionComponent = () => {
   );
 };
 
-export default FindAll;
+export default Edit;

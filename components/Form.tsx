@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Paper, Typography, TextField, Button } from "@mui/material";
+import { Paper, TextField, Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import {
   Radio,
@@ -9,10 +9,11 @@ import {
   FormLabel,
   Checkbox,
 } from "@mui/material";
-import { ApiOneHandler } from "../routes/medium_users";
 import { User } from "~/types/User";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Notify from "~/components/Notify";
+import axios from "axios";
+import { apiRoutes } from "~/constants/apiRoutes";
 
 const Form: React.FunctionComponent = () => {
   const paperStyle = { padding: "25px 10px", width: 350, margin: "250px auto" };
@@ -23,13 +24,18 @@ const Form: React.FunctionComponent = () => {
 
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
+  const addPost = async (user: User) => {
+    const { data } = await axios.post(`${apiRoutes.medium_users}`, user);
+    return data;
+  };
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsNotifyOpen(!!snackbarText);
   }, [snackbarText]);
 
   const submitMutation = useMutation({
-    mutationFn: (payload: User) => ApiOneHandler("POST", { ...payload }),
+    mutationFn: (user: User) => addPost(user),
     onError: (error) => {
       setSnackbarText(`Post Error ${error}`);
     },
@@ -70,10 +76,7 @@ const Form: React.FunctionComponent = () => {
           }}
         />
         <Grid>
-          <h2 style={headerStyle}>MUI TUTORIAL v1</h2>
-          <Typography variant="caption">
-            Demo project for developers to learn quickly.
-          </Typography>
+          <h2 style={headerStyle}>MUI Test</h2>
         </Grid>
         <TextField
           id="fn"

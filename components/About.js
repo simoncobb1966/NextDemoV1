@@ -35,7 +35,7 @@ export default function About(props) {
       />
       <Box>
         <h1>
-          Hi, I'm{" "}
+          Hi, I&apos;m{" "}
           <span
             style={{
               background: "red",
@@ -47,7 +47,7 @@ export default function About(props) {
           </span>
           <span>🤚</span>
         </h1>
-        <h2>I'm a {description}.</h2>
+        <h2>I&apos;m a {description}.</h2>
         <Box component={"ul"} p={"0.8rem"}>
           {bullet_emoji.map((object, index) => (
             <BulletEmoji key={index} emoji={object.emoji} text={object.text} />

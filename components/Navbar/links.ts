@@ -9,11 +9,11 @@ export const links: Link[] = [
     url: "../../",
   },
   {
-    label: "Post",
-    url: "../../post_medium_users",
+    label: "Create New",
+    url: "../../create_new",
   },
   {
-    label: "FindAll",
-    url: "../../findAll",
+    label: "Edit",
+    url: "../../edit",
   },
 ];
