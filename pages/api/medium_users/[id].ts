@@ -1,12 +1,3 @@
-// import { User } from "../../../types/User";
-// import {
-//   create_medium_user,
-//   fetch_all_medium_users,
-//   delete_medium_users,
-//   fetch_one_medium_user,
-//   update_medium_user,
-//   findAll_medium_user,
-// } from "../../../service/medium_users";
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
   delete_medium_users,
@@ -28,9 +19,6 @@ const handler = async (
 
   try {
     const { body, method } = req;
-    console.log("---=== body", body);
-    console.log("---=== method", method);
-    console.log("---=== id", id);
 
     switch (method) {
       case "DELETE": {
@@ -46,7 +34,6 @@ const handler = async (
         break;
       }
       case "GET": {
-        // fetch item by id
         const user = await fetch_one_medium_user(validatedId);
         if (!user) {
           return Response.json(

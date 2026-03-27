@@ -1,7 +1,7 @@
 import { medium_users } from "../database/models";
 import { Op } from "sequelize";
 import { User } from "../types/User";
-// ----------------------------------------------------------------
+
 export async function create_medium_user(user: User) {
   const { firstName, lastName, status } = user;
   const users = await medium_users.create({
@@ -12,14 +12,11 @@ export async function create_medium_user(user: User) {
   return users;
 }
 
-//--------------------------------------------------------------------------
-
 export async function fetch_all_medium_users() {
   const users = await medium_users.findAll();
   return users;
 }
 
-//--------------------------------------------------------------------------
 export async function delete_medium_users(id: string) {
   console.log("delete_medium_users - req", id);
   const qtyDeleted = await medium_users.destroy({
@@ -30,14 +27,11 @@ export async function delete_medium_users(id: string) {
   return qtyDeleted;
 }
 
-//--------------------------------------------------------------------------
-
 export async function fetch_one_medium_user(id: string) {
   console.log("dbService - fetch_one_medium_user", id, typeof id);
   return await medium_users.findByPk(id);
 }
 
-// ----------------------------------------------------------------
 export async function update_medium_user(payload: User) {
   console.log("###--- payload", payload);
   const { firstName, lastName, status, id } = payload;
@@ -56,7 +50,6 @@ export async function update_medium_user(payload: User) {
 
   return user;
 }
-//--------------------------------------------------------------------------
 
 export async function find_medium_user(searchTerm: String) {
   console.log("dbService - findAll_medium_user", searchTerm);
